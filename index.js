@@ -248,7 +248,13 @@ module.exports = async function (config) {
       var marker = markers[markerIndex];
       markerIndex++;
       if (marker.type === 'Capture') {
-        await timeHandler.goToTimeAndAnimateForCapture(browserFrames, marker.time);
+        await timeHandler.goToTimeAndAnimateForCapture(browserFrames, marker.time).catch((err) => {
+          if (err.message.includes('Execution context was destroyed')) {
+            log(err.message);
+            return;
+          }
+          throw err;
+        });
         var skipCurrentFrame;
         if (config.shouldSkipFrame) {
           skipCurrentFrame = await config.shouldSkipFrame({
